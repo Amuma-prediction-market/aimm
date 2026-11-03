@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+# the sandbox crate downloads a NEAR node when it builds, so a plain `cargo test` leaves it out
+default-members = ["core", "contract", "test-token"]
+members = ["core", "contract", "test-token", "sandbox"]
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+strip = true
+overflow-checks = true

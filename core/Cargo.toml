@@ -1,0 +1,14 @@
+[package]
+name = "aimm-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "AIMM, the Automated Information Market Maker: curve, pot, payout and sell cap in fixed-point Rust"
+
+[features]
+default = []
+# Borsh and JSON serialisation for use inside the NEAR contract.
+near = ["dep:near-sdk"]
+
+[dependencies]
+near-sdk = { version = "5", optional = true }

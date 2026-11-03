@@ -1,0 +1,16 @@
+[package]
+name = "aimm-contract"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "AIMM on NEAR: questions with several answers, priced by the Automated Information Market Maker"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+aimm-core = { path = "../core", features = ["near"] }
+near-sdk = "5"
+
+[dev-dependencies]
+near-sdk = { version = "5", features = ["unit-testing"] }
