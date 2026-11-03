@@ -1,0 +1,4 @@
+# near-sdk's host functions (panic_utf8 and the rest) replace its pure-Rust fallbacks only with this flag; without it
+# every error on chain shows as a bare wasm trap.
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg", "near"]
