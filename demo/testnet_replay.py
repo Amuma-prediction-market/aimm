@@ -24,10 +24,10 @@ ACCOUNTS = {c: (os.environ.get(f"AIMM_{c.upper()}_TRADER", ""), os.environ.get(f
 DATA = Path(os.environ.get("AIMM_DATA", Path(__file__).resolve().parent.parent.parent / "aimm-data"))
 # near-cli sends through FastNEAR's endpoint; reading from a different provider keeps the two off one rate limit
 RPC = "https://rpc.testnet.near.org"
-CHECK_EVERY = 25  # transactions between balance checks; each checks the running total, so no payment can slip by
+CHECK_EVERY = int(os.environ.get("CHECK_EVERY", 25))  # transactions between balance checks; each checks the running total
 FLOOR = 1.0  # NEAR: stop before any signer falls below this, so nobody runs out of gas mid-question
 SECONDS_PER_TX = 18  # measured: about 13 s a trade through near-cli, with the balance check, plus the pause
-PACE = 2  # seconds between transactions, to stay under the RPC services' rate limits
+PACE = float(os.environ.get("PACE", 2))  # seconds between transactions, to stay under the RPC services' rate limits
 
 
 def rpc(params):
@@ -60,8 +60,10 @@ def cash(who):
 SENT = {}
 
 
-def call(signer, contract, method, args, deposit="1 yoctoNEAR", gas="100 Tgas"):
-    """Sends one transaction through near-cli and returns (transaction id, AIMM events by name). Raises if it failed."""
+def call(signer, contract, method, args, deposit="1 yoctoNEAR", gas="100 Tgas", landed=None):
+    """Sends one transaction through near-cli and returns (transaction id, AIMM events by name). Raises if it failed.
+    If near-cli loses the reply after sending, a retry would run the trade twice, so `landed` is asked first: when it
+    says the trade is on chain, this returns (None, None) and the caller relies on the next balance check."""
     SENT[signer] = SENT.get(signer, 0) + 1
     # a transaction burns about 0.001 NEAR, so checking every 20 keeps well clear of the floor
     if SENT[signer] % 20 == 1 and near_left(signer) < FLOOR:
@@ -74,9 +76,11 @@ def call(signer, contract, method, args, deposit="1 yoctoNEAR", gas="100 Tgas"):
         tx = re.search(r"Transaction ID: (\w+)", text)
         if tx:
             break
-        # nothing was sent: a network error, a rate limit, or a nonce clash with another signer of the same account
+        # a rate limit or a nonce clash refuses before sending; a network error may come after the transaction went out
         if any(s in text for s in ("error sending request", "timed out", "Timeout", "nonce", "rate limit", "Too Many", "429")):
             time.sleep(min(10 * 2 ** attempt, 300))
+            if landed is not None and landed():
+                return None, None
             continue
         raise RuntimeError(f"{method} by {signer} failed: {text[-800:]}")
     if not tx:
@@ -190,6 +194,12 @@ def main():
         (out / f"{city}.json").write_text(json.dumps(record, indent=1))
 
     purse = {trader: cash(trader), arb: cash(arb)}
+    q = view(AIMM, "get_question", {"question_id": qid})
+    supply = [int(x) for x in q["yes_supply"]] + [int(x) for x in q["no_supply"]]
+
+    def slot_is(i, want):
+        q = view(AIMM, "get_question", {"question_id": qid})
+        return ([int(x) for x in q["yes_supply"]] + [int(x) for x in q["no_supply"]])[i] == want
     nxt = 0
     for n, f in enumerate(trades, 1):
         kind, t, rng, yes, tickets, amount, cut = f[1], int(f[2]), int(f[3]), f[4] == "1", f[5], int(f[6]), int(f[7])
@@ -201,17 +211,25 @@ def main():
         if n < start:
             continue
         who = trader if real else arb
+        slot = (0 if yes else len(answers)) + rng
+        supply[slot] += -int(tickets) if kind.endswith("_sell") else int(tickets)
+        landed = lambda: slot_is(slot, supply[slot])
         if kind.endswith("_sell"):
-            tx, ev = call(who, AIMM, "sell", {"question_id": qid, "range": rng, "yes": yes, "tickets": tickets, "min_proceeds": str(amount - cut)})
-            got = ev.get("sell")
-            assert got and int(got["refund"]) == amount and int(got["fee"]) == cut, f"{city} sale {n}: {got} against {amount} {cut}, {tx}"
+            tx, ev = call(who, AIMM, "sell", {"question_id": qid, "range": rng, "yes": yes, "tickets": tickets, "min_proceeds": str(amount - cut)}, landed=landed)
+            if tx is not None:
+                got = ev.get("sell")
+                assert got and int(got["refund"]) == amount and int(got["fee"]) == cut, f"{city} sale {n}: {got} against {amount} {cut}, {tx}"
             purse[who] += amount - cut
         else:
             msg = json.dumps({"action": "buy", "question_id": qid, "range": rng, "yes": yes, "tickets": tickets, "max_cost": str(amount + cut)})
-            tx, ev = call(who, FT, "ft_transfer_call", {"receiver_id": AIMM, "amount": str(amount + cut), "msg": msg})
-            got = ev.get("buy")
-            assert got and int(got["cost"]) == amount and int(got["fee"]) == cut, f"{city} purchase {n}: {got} against {amount} {cut}, {tx}"
+            tx, ev = call(who, FT, "ft_transfer_call", {"receiver_id": AIMM, "amount": str(amount + cut), "msg": msg}, landed=landed)
+            if tx is not None:
+                got = ev.get("buy")
+                assert got and int(got["cost"]) == amount and int(got["fee"]) == cut, f"{city} purchase {n}: {got} against {amount} {cut}, {tx}"
             purse[who] -= amount + cut
+        if tx is None:
+            print(f"{city}: transaction {n} landed but near-cli lost the reply; the next balance check covers it", flush=True)
+            tx = "landed, reply lost"
         record["txs"].append([t, kind, tx])
         if n % CHECK_EVERY == 0 or n == len(trades):
             for w in (trader, arb):
