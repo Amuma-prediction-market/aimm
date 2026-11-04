@@ -12,6 +12,35 @@ Whitepaper: [`docs/aimm.pdf`](docs/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md).
 3. **Payout.** Every winning token is paid min(1, pot ÷ winning tokens). This follows from four axioms (whitepaper, Proposition 1, stated there for two answers): a token is paid only from money the market holds, a YES and a NO together are paid at most 1, every winning token is paid the same whenever it was bought, and tokens are paid as much as those rules allow. A sale is capped at the seller's share of the pot, so no sale lowers the payout on any answer the sold token pays on. The pot is shared, so a sale can lower the payout on other answers.
 4. **Information.** The payout turns each price into an *information interval*, published on chain for every answer. With ℓ at or above L the pot always covers every winner and the interval is a single point, the AMM's price. With ℓ below L it widens only while the pot falls short of an answer's winning tokens. The operator chooses ℓ; trading sets the width. With two answers, a risk-neutral trader buys YES exactly when their belief is above the upper end and NO exactly when it is below the lower end (Proposition 3). With three or more answers, below the lower end is enough to buy NO but not necessary (`SPEC.md`, section 3).
 
+## On NEAR testnet: Polymarket's 2 November questions
+
+The contract runs on NEAR testnet at
+[`market.aimm-weather.testnet`](https://testnet.nearblocks.io/address/market.aimm-weather.testnet). Every Polymarket
+trade on two questions, the highest temperature in NYC and in London on 2 November 2026, was sent to it as a
+transaction, in order. After each one an arbitrageur's account trades AIMM's price back to Polymarket's, as arbitrageurs would
+on a live market. The operator put up $1,000 of test dollars against L = $3,333, with no fee.
+
+| | NYC, question 7 | London, question 9 |
+|---|---|---|
+| Transactions on testnet | 2,500 | 3,008 |
+| Transactions whose cost, refund and fee equalled the native run | all | all |
+| Hourly checks where every price and interval on chain equalled the native run | 12 of 12 | 12 of 12 |
+| Hourly readings, 11 answers each, with Polymarket within 0.1 point of AIMM's interval | 132 of 132 | 132 of 132 |
+| Largest gap between Polymarket and the interval | 0.097 points | 0.088 points |
+| Widest interval at an hourly check | 0 | 4.0 points |
+| Slippage, AIMM ℓ = 0.3 L | $66.02, 1.36% | $242.44, 2.14% |
+| Slippage, AMM ℓ = L, same $1,000 | $251.39, 5.17% | $770.72, 6.81% |
+| Slippage, AMM ℓ = L at AIMM's depth, $3,333 | $66.02 | $242.38 |
+| Winner, as Polymarket resolved | 66-67°F | 13°C |
+| Paid per winning token at settlement | 1.0000 | 1.0000 |
+| Operator's result on its $1,000 | −$201.68 | +$391.44 |
+
+Polymarket's prices are floored at 1% and normalised, as below. The slippage rows come from the native run, which the
+chain matched transaction by transaction. Both questions were resolved with Polymarket's winner and settled on chain
+exactly as the native run: the copied trades' account redeemed $106.84 and $1,724.99, the arbitrageur's $2,702.28 and $9,662.60.
+The result files keep 2,412 and 2,927 of the transaction IDs; the rest were lost when a run was restarted, and
+the supplies on chain were checked against the native run for those transactions too.
+
 ## What a replay of real trades shows
 
 Two real Polymarket temperature questions, the last ten hours of each, with $1,000 of real money and no fee. AIMM has
@@ -51,8 +80,9 @@ cannot mirror. Keeping them makes one or two huge trades dominate and takes the 
 | `cargo run -p aimm-sandbox --bin scenarios` | 15 claims pass on a local NEAR node, among them gas at 16 answers, a pot that settles short, a failed payout, and the storage attacks |
 | The replay above as transactions, no fee | 11,818 transactions, all six questions settled exactly, the contract left holding 0 |
 | The same with a 2% fee | 5,725 transactions, all six questions settled exactly, the contract left holding 0 |
+| The 2 November replay on NEAR testnet | 5,508 transactions, both questions settled exactly as the native run |
 
-In both replays every cost, refund and fee matched the native run to the unit, the trader's token balance was checked after every trade, and every price and interval was compared with the native run each hour of market time. All of this ran on a local node at protocol 88. Nothing has run on NEAR testnet or mainnet yet.
+In both local replays every cost, refund and fee matched the native run to the unit, the trader's token balance was checked after every trade, and every price and interval was compared with the native run each hour of market time. They ran on a local node at protocol 88. The testnet replay ran the same checks, with balances checked at least every 100 transactions. Nothing has run on mainnet.
 
 ## What is here
 
