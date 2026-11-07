@@ -9,7 +9,7 @@
 //! (the whitepaper's figures price each trade on a book of its own). Volume is at Polymarket's prices. Every minute the
 //! informed trader, who believes the prices of demo/prepare.py, trades as the whitepaper's Proposition 3 says: YES on a
 //! range while its price is above the range's upper probability, NO while it is below the lower one. With no fee
-//! (FEE_BPS unset) only the mechanism differs.
+//! (FEE_BPS unset) only the mechanism differs. FUND sets ℓ in dollars (1,000) and SHARE sets ℓ / L (0.3).
 //!
 //!     cargo run --release -p aimm-core --example replay -- ../aimm-data/london.replay ../aimm-data/london
 //! writes <out>.csv (one row per minute per market) and <out>.ops (every trade executed, for the on-chain replay).
@@ -19,8 +19,14 @@ use std::fmt::Write as _;
 use std::io::Write as _;
 
 const UNIT: f64 = 1e6; // the collateral's smallest unit: a 6-decimal stablecoin
-const ELL: f64 = 1_000.0; // real money, in dollars
-const SHARE: f64 = 0.3; // ℓ / L for AIMM
+/// Real money ℓ in dollars, FUND to change it.
+fn ell() -> f64 {
+    std::env::var("FUND").ok().map(|v| v.parse().unwrap()).unwrap_or(1_000.0)
+}
+/// ℓ / L for AIMM, SHARE to change it.
+fn share() -> f64 {
+    std::env::var("SHARE").ok().map(|v| v.parse().unwrap()).unwrap_or(0.3)
+}
 const TOL: u128 = WAD / 1000; // the informed trader ignores gaps under 0.1 point
 
 /// One transaction of a move: a sale of the opposite token, or a purchase.
@@ -154,7 +160,8 @@ fn main() {
         q.open((l / lnmin * UNIT) as u128, (fund * UNIT) as u128, &p0, 0).unwrap();
         Market { name, q, slippage: 0.0, volume: 0.0, arb_trades: 0, arb_volume: 0.0, sales: 0, capped: 0, outside: 0, held: [vec![0; 2 * n], vec![0; 2 * n]], paid: [0.0; 2] }
     };
-    let mut ms = vec![make("AIMM", ELL / SHARE, ELL), make("AMM", ELL, ELL), make("AMM full", ELL / SHARE, ELL / SHARE)];
+    let (ell, share) = (ell(), share());
+    let mut ms = vec![make("AIMM", ell / share, ell), make("AMM", ell, ell), make("AMM full", ell / share, ell / share)];
     let mut csv = String::from("time,market,range,target,price,lower,upper,pot,payout,slippage\n");
     let mut ops = String::new();
     // how each market was opened, so the on-chain replay opens it identically: open <market> <depth> <fund> <fee> <prices...>
@@ -222,7 +229,7 @@ fn main() {
     }
     std::fs::File::create(format!("{out}.csv")).unwrap().write_all(csv.as_bytes()).unwrap();
     println!("{header}");
-    println!("{minutes} minutes; real money {ELL} USDC in AIMM and AMM; AIMM's L = {:.0}", ELL / SHARE);
+    println!("{minutes} minutes; real money {ell} USDC in AIMM and AMM; AIMM's L = {:.0}", ell / share);
     println!("{:<9} {:>10} {:>12} {:>10} {:>11} {:>12} {:>7} {:>7} {:>14} {:>16}", "market", "fund", "real trades", "slippage", "slip/volume", "arb trades", "sales", "capped", "outside int.", "payout winner");
     for m in ms.iter_mut() {
         let fund = m.q.fund as f64 / UNIT;
