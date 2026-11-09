@@ -6,17 +6,19 @@ Each argument is a Polymarket event as the Gamma API returns it (`/events?slug=.
 zone of the city. The question takes the event's title and answers, opens at Polymarket's prices (the bid-ask midpoint
 where both sides quote, floored at 1% and normalised so they add up to exactly 1), and closes at the end of that local
 day, when Polymarket's last reading is in. The operator puts up $1,000 against L = $3,333, with no fee, as in the
-replays. The resolver reports Polymarket's winner after the close.
+replays, unless FUND and DEPTH (dollars) are set. The resolver reports Polymarket's winner after the close.
 """
-import json, math, sys
+import json, math, os, sys
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import testnet_replay as t
 
 WAD = 10**18
-FUND = 1_000_000_000  # $1,000 of tUSD, 6 decimals
-VIRTUAL = 3_333_333_333  # L, the depth the curve prices at
+# the operator's fund and the depth the curve prices at, in tUSD's smallest unit (6 decimals): $1,000 against $3,333
+# unless FUND and DEPTH (in dollars) say otherwise
+FUND = int(float(os.environ.get("FUND", 1_000)) * 1e6)
+VIRTUAL = int(float(os.environ.get("DEPTH", 3_333.333333)) * 1e6)
 FLOOR = 0.01
 
 
