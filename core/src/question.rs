@@ -416,7 +416,7 @@ impl Question {
         Ok(self.pool()?.prices())
     }
 
-    /// The whitepaper's information interval for answer `i` (Definition 5), in WAD: the upper probability
+    /// The prediction range for answer `i` (Definition 5), in WAD: the upper probability
     /// min(1, p / r_yes) and the lower probability max(0, 1 - (1 - p) / r_no), where r_yes is what a YES on i would
     /// be paid as the pot stands and r_no the least of what a NO on i could be paid. With two answers a risk-neutral
     /// trader buys YES exactly when their belief is above the upper end and NO exactly when it is below the lower end

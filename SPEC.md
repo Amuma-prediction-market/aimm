@@ -41,16 +41,16 @@ money backs it.
 - **Fee.** fee_rate (at most 0.1) times the curve's cost on a buy, or times the refund on a sale, rounded up. The
   operator's revenue. It never enters the pot.
 
-## 3. The information interval
+## 3. The prediction range
 
 For answer i with price p, let r_yes be what a YES on i would be paid as the pot stands and r_no the least of what a
-NO on i could be paid. The interval is [max(0, 1 − (1 − p) / r_no), min(1, p / r_yes)] (whitepaper, Definition 5).
+NO on i could be paid. The prediction range is [max(0, 1 − (1 − p) / r_no), min(1, p / r_yes)] (whitepaper, Definition 5).
 With two answers, a risk-neutral trader buys YES exactly when their belief is above the upper end and NO exactly when
-it is below the lower end (Proposition 3). The whitepaper's proposition is binary. With three or more answers this port
+it is below the lower end (Proposition 3). The whitepaper's proposition is binary. With three or more answers this contract
 takes r_no as the worst case: the upper end still decides a YES, and a belief below the lower end is enough to buy NO
 but not necessary, because a NO pays differently on each answer it pays on. All of this is for the next token, with no
 fee and the pot as it stands; with a fee, a belief must also clear the fee. With ℓ = L the payouts are always 1 and the
-interval is the price itself. The contract returns it for every answer in `get_question` and `information_intervals`,
+range is the price itself. The contract returns it for every answer in `get_question` and `information_intervals`,
 rounded outward.
 
 ## 4. Guarantees
@@ -72,7 +72,7 @@ for each purchase, so the gain comes once and does not compound. A fee of any si
 
 - Amounts of tokens and of money are in the collateral's smallest unit. At payout 1 a winning token is paid one unit.
   With a 6-decimal stablecoin, 1,000,000 tokens pay 1 dollar.
-- Prices, payouts, the fee rate and the interval are in WAD, 1e18 = 1.
+- Prices, payouts, the fee rate and the prediction range are in WAD, 1e18 = 1.
 - Every opening price is at least 1e-6 and they add up to exactly 1e18.
 - One trade moves at most 2^100 tokens, and no answer carries more winning tokens than that; the depth is at most
   2^100. All three are in the collateral's smallest unit, about 1.27e12 whole tokens at 18 decimals and 1.27e6 at 24.

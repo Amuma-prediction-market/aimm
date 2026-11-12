@@ -17,7 +17,7 @@
 //! be recorded.
 //!
 //! Amounts of tokens and money are in the collateral's smallest unit: a winning token is paid up to one unit.
-//! Prices, payouts, the fee rate and the information interval are in WAD (1e18 = 1).
+//! Prices, payouts, the fee rate and the prediction range are in WAD (1e18 = 1).
 
 use aimm_core::question::Question;
 use aimm_core::{AimmError, WAD};
@@ -127,7 +127,7 @@ pub struct QuestionView {
     pub storage: U128,
     /// Every answer's price (WAD); empty until it opens and once resolved.
     pub prices: Vec<U128>,
-    /// Every answer's information interval [lower, upper] (WAD); empty until it opens and once resolved.
+    /// Every answer's prediction range [lower, upper] (WAD); empty until it opens and once resolved.
     pub intervals: Vec<[U128; 2]>,
     /// What each winning token would be paid if that answer happened now (WAD); after the result, the payout.
     pub payouts: Vec<U128>,
@@ -617,7 +617,7 @@ impl Contract {
         Quote { amount: U128(f.amount), fee: U128(f.fee), total: U128(f.amount - f.fee), prices_after: u(&after) }
     }
 
-    /// The whitepaper's information interval [lower, upper] for every answer (WAD).
+    /// The prediction range [lower, upper] for every answer (WAD).
     pub fn information_intervals(&self, question_id: u64) -> Vec<[U128; 2]> {
         let q = &self.market(question_id).q;
         (0..q.n()).map(|i| { let (lo, hi) = q.information_interval(i).unwrap_or_else(|e| fail(e)); [U128(lo), U128(hi)] }).collect()

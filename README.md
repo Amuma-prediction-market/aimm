@@ -13,7 +13,7 @@ Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf).
 
 | Component | Description |
 |---|---|
-| `core/` | The AIMM engine in fixed-point Rust: curve, pot, payout and information interval |
+| `core/` | The AIMM engine in fixed-point Rust: curve, pot, payout and prediction range |
 | `core/tests/` | Reference-model, property and limit tests |
 | `contract/` | The NEAR smart contract, serving every question from one account |
 | `scripts/` | Testnet deployment |

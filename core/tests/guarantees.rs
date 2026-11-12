@@ -1,7 +1,7 @@
 //! SPEC.md section 4, checked on random trading at 6, 18 and 24 decimals, from 3 to 16 answers, with tokens from the
 //! size of the noise in C up to three times the depth: a round trip on the curve returns what it paid, no sequence is
 //! profitable at the true chances, a sale never lowers the payout on an answer the sold token pays on; and the
-//! accounting and the information interval hold. `claims.rs` has the same guarantees at values worked by hand.
+//! accounting and the prediction range hold. `claims.rs` has the same guarantees at values worked by hand.
 mod common;
 use aimm_core::lmsr::Pool;
 use aimm_core::math::{mul_div, mul_div_up, WAD};
@@ -283,7 +283,7 @@ fn a_fund_below_l_does_not_collapse_it() {
             let w = drive_to_one(&mut q, &mut r, |_| {});
             let (lo, hi) = q.information_interval(w).unwrap();
             assert!(q.payout_if(w).unwrap() < WAD, "the pot should be short");
-            assert!(hi - lo > 1_000_000, "the interval should be open: {lo} to {hi}");
+            assert!(hi - lo > 1_000_000, "the prediction range should be open: {lo} to {hi}");
         }
     }
 }
