@@ -16,8 +16,6 @@ Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf).
 | `core/` | The AIMM engine in fixed-point Rust: curve, pot, payout and information interval |
 | `core/tests/` | Reference-model, property and limit tests |
 | `contract/` | The NEAR smart contract, serving every question from one account |
-| `test-token/` | A NEP-141 test stablecoin for testnet |
-| `demo/`, `core/examples/` | Replays of real market data, natively and on testnet |
 | `scripts/` | Testnet deployment |
 
 ## Run it
@@ -29,19 +27,15 @@ cargo test
 ```
 
 ```bash
-cargo build -p aimm-contract -p test-token --target wasm32-unknown-unknown --release
+cargo build -p aimm-contract --target wasm32-unknown-unknown --release
 ```
-
-The replays need Polymarket's trade data, which stays outside this repository, in `../aimm-data`. The scripts in
-`demo/` fetch it, prepare it and run the replays natively and on testnet; each says how to run it at
-its top. All of it takes about two hours, most of it the on-chain run.
 
 ## Built with
 
 | | |
 |---|---|
-| Contract and test token | [`near-sdk`](https://crates.io/crates/near-sdk) 5, [`near-contract-standards`](https://crates.io/crates/near-contract-standards) 5 |
-| Replay and testnet scripts | Python's standard library; [near-cli-rs](https://github.com/near/near-cli-rs) sends the testnet transactions |
+| Contract | [`near-sdk`](https://crates.io/crates/near-sdk) 5 |
+| Testnet script | [near-cli-rs](https://github.com/near/near-cli-rs) sends the transactions |
 | AI-assisted code | Written with [Claude Code](https://claude.com/claude-code) (Anthropic) under the team's direction; commits it worked on carry its co-author line |
 
 ## Hackathon

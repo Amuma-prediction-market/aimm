@@ -32,7 +32,7 @@ for who in "$AIMM" "$OPERATOR" "$TRADER"; do
 done
 
 NOW=$(($(date +%s) * 1000000000)); CLOSE=$((NOW + 600000000000))
-near contract call-function as-transaction "$AIMM" create_question json-args "{\"args\":{\"collateral\":\"$FT\",\"title\":\"Highest temperature in NYC (demo)\",\"answers\":[\"49°F or below\",\"50-51°F\",\"52-53°F\",\"54-55°F\",\"56°F or higher\"],\"resolver\":\"$RESOLVER\",\"fallback_resolver\":\"$RESOLVER\",\"close_time\":\"$CLOSE\",\"resolve_after\":\"$CLOSE\",\"fallback_after\":\"$CLOSE\",\"fee_rate\":\"20000000000000000\"}}" \
+near contract call-function as-transaction "$AIMM" create_question json-args "{\"args\":{\"collateral\":\"$FT\",\"title\":\"Which answer will happen? (demo)\",\"answers\":[\"A\",\"B\",\"C\",\"D\",\"E\"],\"resolver\":\"$RESOLVER\",\"fallback_resolver\":\"$RESOLVER\",\"close_time\":\"$CLOSE\",\"resolve_after\":\"$CLOSE\",\"fallback_after\":\"$CLOSE\",\"fee_rate\":\"20000000000000000\"}}" \
   prepaid-gas '100 Tgas' attached-deposit '0.1 NEAR' sign-as "$OPERATOR" $NET sign-with-keychain send
 ID=$(near contract call-function as-read-only "$AIMM" question_count json-args '{}' $NET now 2>/dev/null | grep -Eo '[0-9]+' | tail -1)
 echo "question $ID"
