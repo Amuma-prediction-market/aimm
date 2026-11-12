@@ -1,90 +1,13 @@
-# AIMM on NEAR
+# AIMM: Automated Information Market Maker
 
-**AIMM, the Automated Information Market Maker, as a NEAR smart contract in Rust.** A prediction market that backs its
-curve with part of the money an automated market maker needs, and publishes how far each price can be trusted.
+Information is not free. Capital is required to get good information in prediction markets. Operators have to choose between the two evils of low pricing accuracy vs capital inefficiency.
+Parimutuel pools fail to provide reliable information and force informed traders to wait until the last moments to place their bet to avoid revealing information.
+AMM and orderbooks can provide accurate signals but require heavy capital - more so for illiquid specialty markets.
+This is the fundamental trade off between capital requirement and prediction accuracy: AMM/orderbook and parimutuel are at two ends of the spectrum.
+Existing prediction markets are not optimal for specialty longtail markets such as wind speeds around a wind farm. Such information often triggers millions in profits or losses for utilities but no existing prediction market can accurately and efficiently serve it.
+We propose a new mechanism: Automated Information Market Maker (AIMM). Which does not seek for a point estimation but to form a prediction range which contains true probabilities. The range length represents the accuracy of predictions.
 
-Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md). Amuma, the prediction market built on AIMM, runs a live demo on testnet at
-[amuma-cv4.pages.dev](https://amuma-cv4.pages.dev); its code is
-[`Amuma-prediction-market/app`](https://github.com/Amuma-prediction-market/app).
-
-## The idea in four lines
-
-1. **Pricing.** One curve prices every answer of a question, so the prices add up to 1 and a trade on any answer moves them all. It is Hanson's curve with a fixed depth, whose worst-case loss L is the *virtual* liquidity.
-2. **Capital.** The operator backs it with real money, a fund ℓ. An AMM must put up all of L. AIMM lets ℓ be less.
-3. **Payout.** Every winning token is paid min(1, pot ÷ winning tokens). This follows from four axioms (whitepaper, Proposition 1, stated there for two answers): a token is paid only from money the market holds, a YES and a NO together are paid at most 1, every winning token is paid the same whenever it was bought, and tokens are paid as much as those rules allow. A sale is capped at the seller's share of the pot, so no sale lowers the payout on any answer the sold token pays on. The pot is shared, so a sale can lower the payout on other answers.
-4. **Information.** The payout turns each price into an *information interval*, published on chain for every answer. With ℓ at or above L the pot always covers every winner and the interval is a single point, the AMM's price. With ℓ below L it widens only while the pot falls short of an answer's winning tokens. The operator chooses ℓ; trading sets the width. With two answers, a risk-neutral trader buys YES exactly when their belief is above the upper end and NO exactly when it is below the lower end (Proposition 3). With three or more answers, below the lower end is enough to buy NO but not necessary (`SPEC.md`, section 3).
-
-## On NEAR testnet: Polymarket's 2 November questions
-
-The contract runs on NEAR testnet at
-[`market.aimm-weather.testnet`](https://testnet.nearblocks.io/address/market.aimm-weather.testnet). Every Polymarket
-trade on two questions, the highest temperature in NYC and in London on 2 November 2026, was sent to it as a
-transaction, in order. After each one an arbitrageur's account trades AIMM's price back to Polymarket's, as arbitrageurs
-would on a live market. The operator put up $1,000 of test dollars against L = $3,333, with no fee.
-
-| | NYC, question 7 | London, question 9 |
-|---|---|---|
-| Transactions on testnet | 2,500 | 3,008 |
-| Transactions whose cost, refund and fee equalled the native run | all | all |
-| Hourly checks where every price and interval on chain equalled the native run | 12 of 12 | 12 of 12 |
-| Hourly readings, 11 answers each, with Polymarket within 0.1 point of AIMM's interval | 132 of 132 | 132 of 132 |
-| Largest gap between Polymarket and the interval | 0.097 points | 0.088 points |
-| Widest interval at an hourly check | 0 | 4.0 points |
-| Slippage, AIMM ℓ = 0.3 L | $66.02, 1.36% | $242.44, 2.14% |
-| Slippage, AMM ℓ = L, same $1,000 | $251.39, 5.17% | $770.72, 6.81% |
-| Slippage, AMM ℓ = L at AIMM's depth, $3,333 | $66.02 | $242.38 |
-| Winner, as Polymarket resolved | 66-67°F | 13°C |
-| Paid per winning token at settlement | 1.0000 | 1.0000 |
-| Operator's result on its $1,000 | −$201.68 | +$391.44 |
-
-Polymarket's prices are floored at 1% and normalised, as below. The slippage rows come from the native run, which the
-chain matched transaction by transaction. Both questions were resolved with Polymarket's winner and settled on chain
-exactly as the native run: the copied trades' account redeemed $106.84 and $1,724.99, the arbitrageur's $2,702.28 and $9,662.60.
-The result files keep 2,412 and 2,927 of the transaction IDs; the rest were lost when a run was restarted, and
-the supplies on chain were checked against the native run for those transactions too.
-
-## What a replay of real trades shows
-
-Two real Polymarket temperature questions, the last ten hours of each, with $1,000 of real money and no fee. AIMM has
-L = $3,333. An informed trader who believes Polymarket's prices keeps each market in line, so every market follows
-those prices by construction; the replay measures what that costs, not whether the market is accurate.
-
-| | NYC, 22 Feb 2025 | London, 17 Mar 2025 |
-|---|---|---|
-| Real trades kept | 157, $7,706 | 309, $8,283 |
-| Fills left out, priced outside 0.5% to 99.5% | 80 of 237 | 92 of 401 |
-| Slippage, AIMM ℓ = 0.3 L | $149.70, 1.94% | $142.90, 1.73% |
-| Slippage, AMM ℓ = L, same $1,000 | $462.92, 6.01% | $436.41, 5.27% |
-| Slippage, AMM ℓ = L at AIMM's depth, $3,333 | $149.76 | $142.90 |
-| Widest interval on any answer | 9.96 points | 10.75 points |
-| Mean interval width | 0.037 points | 0.058 points |
-| Lowest payout on any answer | 0.900 | 0.862 |
-| Sales, and sales the cap bound | 790, 6 | 1,076, 11 |
-| Operator's result, AIMM | −$209.08 | −$366.52 |
-| Operator's result, AMM, same $1,000 | −$66.75 | −$148.34 |
-| Operator's result, AMM at AIMM's depth | −$222.50 | −$494.46 |
-
-AIMM gives the slippage of a $3,333 market for $1,000. The operator pays for that: it loses more than the AMM with the
-same money, by $142.33 in NYC and $218.18 in London, which is less than the slippage saved, $313.22 and $293.51. Every
-winner was paid 1.0000 at settlement, so these two runs never tested a short pot at the end. With a 2% fee the operator's result is +$125.07 and −$67.91 for
-AIMM, and +$203.17 and +$118.25 for the AMM with the same money.
-
-Polymarket's prices are floored at 1% and normalised before use, because their raw prices add up to between 0.71 and
-1.55. Both accounts sell what they hold before they buy, and the fills left out are the ones a curve floored at 1%
-cannot mirror. Keeping them makes one or two huge trades dominate and takes the slippage ratio from about 3 to about
-1.3.
-
-## What has been checked
-
-| Check | Result |
-|---|---|
-| `cargo test` | 415 tests pass: 145 on the arithmetic, 270 on the contract |
-| `cargo run -p aimm-sandbox --bin scenarios` | 15 claims pass on a local NEAR node, among them gas at 16 answers, a pot that settles short, a failed payout, and the storage attacks |
-| The replay above as transactions, no fee | 11,818 transactions, all six questions settled exactly, the contract left holding 0 |
-| The same with a 2% fee | 5,725 transactions, all six questions settled exactly, the contract left holding 0 |
-| The 2 November replay on NEAR testnet | 5,508 transactions, both questions settled exactly as the native run |
-
-In both local replays every cost, refund and fee matched the native run to the unit, the trader's token balance was checked after every trade, and every price and interval was compared with the native run each hour of market time. They ran on a local node at protocol 88. The testnet replay ran the same checks, with balances checked at least every 100 transactions. Nothing has run on mainnet.
+Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf).
 
 ## What is here
 
@@ -173,7 +96,6 @@ near contract call-function as-read-only $AIMM get_question json-args '{"questio
 The contract account must be registered with the collateral token (`storage_deposit`). A payout goes to the seller, the holder or the operator, and if it cannot be delivered it is kept for them, and anyone can send it on with `withdraw_pending` once they are registered. `sell` needs about 25 Tgas prepaid. `mt_transfer` to someone who holds nothing of the question pays for their row, up to 0.0064 NEAR: attach 0.01 NEAR and the rest comes back.
 
 Before buying, look at who the resolvers are. They decide the result and a report is final (`SPEC.md`, section 6).
-
 
 ## Licence
 
