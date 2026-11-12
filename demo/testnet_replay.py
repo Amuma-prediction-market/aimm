@@ -25,7 +25,7 @@ DATA = Path(os.environ.get("AIMM_DATA", Path(__file__).resolve().parent.parent.p
 # near-cli sends through FastNEAR's endpoint; reading from a different provider keeps the two off one rate limit
 RPC = "https://rpc.testnet.near.org"
 CHECK_EVERY = int(os.environ.get("CHECK_EVERY", 25))  # transactions between balance checks; each checks the running total
-FLOOR = 1.0  # NEAR: stop before any signer falls below this, so nobody runs out of gas mid-question
+FLOOR = float(os.environ.get("NEAR_FLOOR", 1.0))  # NEAR: stop before any signer falls below this, so nobody runs out of gas mid-question
 SECONDS_PER_TX = 18  # measured: about 13 s a trade through near-cli, with the balance check, plus the pause
 PACE = float(os.environ.get("PACE", 2))  # seconds between transactions, to stay under the RPC services' rate limits
 
