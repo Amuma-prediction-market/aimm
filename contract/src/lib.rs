@@ -1,5 +1,5 @@
 //! AIMM on NEAR: questions with several answers, exactly one of which happens, priced by the Adaptive Information
-//! Market Maker (whitepaper: `docs/aimm.pdf`; exact rules: `SPEC.md`).
+//! Market Maker (whitepaper: `whitepaper/aimm.pdf`; exact rules: `SPEC.md`).
 //!
 //! One contract holds every question. Each question has its own NEP-141 collateral, its own operator, resolver and
 //! fallback resolver, and its own pot. The arithmetic is `aimm-core`; this file adds accounts, money and time.

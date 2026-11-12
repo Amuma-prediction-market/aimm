@@ -3,8 +3,8 @@
 **AIMM, the Adaptive Information Market Maker, as a NEAR smart contract in Rust.** A prediction market that backs its
 curve with part of the money an automated market maker needs, and publishes how far each price can be trusted.
 
-Whitepaper: [`docs/aimm.pdf`](docs/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md). This is a port of the Solidity
-contracts in `weather-cast/AIMM-automated-information-market-maker`.
+Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md). This is a port of the Solidity
+contracts in `Amuma-prediction-market/AIMM-automated-information-market-maker`.
 
 ## The idea in four lines
 

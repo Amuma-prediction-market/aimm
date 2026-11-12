@@ -1,7 +1,7 @@
 # AIMM on NEAR: specification
 
-What the contract does, exactly. Why AIMM is the better market is in `docs/aimm.pdf`. This is a port of the Solidity
-`AIMMPoolMarket` and `AIMMTokens` (repository `weather-cast/AIMM-automated-information-market-maker`, `contracts/SPEC.md`)
+What the contract does, exactly. Why AIMM is the better market is in `whitepaper/aimm.pdf`. This is a port of the Solidity
+`AIMMPoolMarket` and `AIMMTokens` (repository `Amuma-prediction-market/AIMM-automated-information-market-maker`, `contracts/SPEC.md`)
 to one NEAR contract. The reference model is `LMSRPool` in that repository's `sims/lmsr_pool.py`; the Rust core must
 match it trade by trade on its vectors, copied here to `core/tests/vectors/`.
 
