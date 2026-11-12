@@ -3,7 +3,7 @@ name = "test-token"
 version = "0.1.0"
 edition = "2021"
 publish = false
-description = "A NEP-141 test stablecoin with 6 decimals and an open faucet, for the sandbox and testnet demos only"
+description = "A NEP-141 test stablecoin with 6 decimals and an open faucet, for testnet demos only"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

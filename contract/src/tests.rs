@@ -3480,7 +3480,7 @@ fn a_pending_amount_of_one_unit_can_be_withdrawn() {
     assert_eq!(c.pending_of(id, acc("alice.near")).0, 0);
 }
 
-/// `with_static_gas` is what a call is sure of, and on_paid burns about 2 Tgas on a failed payment (sandbox claim 4). With
+/// `with_static_gas` is what a call is sure of, and on_paid burns about 2 Tgas on a failed payment, measured on chain. With
 /// less than that a failed payment could not be recorded. The other tests read these constants, so they cannot see a change.
 #[test]
 fn a_payment_and_its_callback_each_keep_ten_tgas() {
