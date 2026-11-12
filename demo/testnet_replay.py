@@ -18,9 +18,18 @@ from pathlib import Path
 NET = ["network-config", "testnet"]
 AIMM, FT = "market.aimm-weather.testnet", "tusd.aimm-weather.testnet"
 OPERATOR, RESOLVER = "aimm-weather.testnet", "aimm-weather-oracle.testnet"
-# each city's demo accounts, the one that copies Polymarket's trades and the arbitrageur, named in the environment
-ACCOUNTS = {c: (os.environ.get(f"AIMM_{c.upper()}_TRADER", ""), os.environ.get(f"AIMM_{c.upper()}_ARBITRAGEUR", ""))
-            for c in ("nyc", "london")}
+# each city's two demo accounts, the one that copies Polymarket's trades and the arbitrageur, named in the environment:
+# AIMM_NYC_TRADER, AIMM_NYC_ARBITRAGEUR, AIMM_LONDON_TRADER, AIMM_LONDON_ARBITRAGEUR
+ROLES = ("TRADER", "ARBITRAGEUR")
+
+
+def demo_accounts(city):
+    """The city's (trader, arbitrageur) accounts, from the environment; exits naming what is missing."""
+    names = [f"AIMM_{city.upper()}_{role}" for role in ROLES]
+    missing = [n for n in names if not os.environ.get(n)]
+    if missing:
+        sys.exit(f"set {', '.join(missing)} to the demo accounts for {city}")
+    return tuple(os.environ[n] for n in names)
 DATA = Path(os.environ.get("AIMM_DATA", Path(__file__).resolve().parent.parent.parent / "aimm-data"))
 # near-cli sends through FastNEAR's endpoint; reading from a different provider keeps the two off one rate limit
 RPC = "https://rpc.testnet.near.org"
@@ -121,7 +130,7 @@ def snapshots(city):
 
 def main():
     city = sys.argv[1]
-    trader, arb = ACCOUNTS[city]
+    trader, arb = demo_accounts(city)
     ops = (DATA / f"{city}.ops").read_text().split("\n")
     header = (DATA / f"{city}.replay").read_text().split("\n")[0]
     title = header.lstrip("# ").split(" ranges:")[0] + " (replay of Polymarket, with an arbitrageur)"

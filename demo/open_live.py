@@ -31,7 +31,7 @@ SCAN = 30  # how many of the newest questions to look through for one with the s
 
 
 def holder_row_bytes(n):
-    """A holder's row with n answers: the key (prefix, question id, a 42-character MetaMask 0x name), a YES and a NO
+    """A holder's row with n answers: the key (prefix, question id, a 42-character 0x account name), a YES and a NO
     amount on every answer, and NEAR's 40 bytes for a record. 451 bytes, about 0.0045 NEAR, with 11 answers."""
     return 1 + 8 + 4 + 42 + 4 + 32 * n + 40
 

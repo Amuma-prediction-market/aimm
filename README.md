@@ -3,7 +3,9 @@
 **AIMM, the Automated Information Market Maker, as a NEAR smart contract in Rust.** A prediction market that backs its
 curve with part of the money an automated market maker needs, and publishes how far each price can be trusted.
 
-Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md).
+Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md). Amuma, the prediction market built on AIMM, runs a live demo on testnet at
+[amuma-cv4.pages.dev](https://amuma-cv4.pages.dev); its code is
+[`Amuma-prediction-market/app`](https://github.com/Amuma-prediction-market/app).
 
 ## The idea in four lines
 
@@ -17,8 +19,8 @@ Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf). Exact rules: [`SPEC.md
 The contract runs on NEAR testnet at
 [`market.aimm-weather.testnet`](https://testnet.nearblocks.io/address/market.aimm-weather.testnet). Every Polymarket
 trade on two questions, the highest temperature in NYC and in London on 2 November 2026, was sent to it as a
-transaction, in order. After each one an arbitrageur's account trades AIMM's price back to Polymarket's, as arbitrageurs would
-on a live market. The operator put up $1,000 of test dollars against L = $3,333, with no fee.
+transaction, in order. After each one an arbitrageur's account trades AIMM's price back to Polymarket's, as arbitrageurs
+would on a live market. The operator put up $1,000 of test dollars against L = $3,333, with no fee.
 
 | | NYC, question 7 | London, question 9 |
 |---|---|---|

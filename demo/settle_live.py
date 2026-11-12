@@ -20,8 +20,9 @@ import json, os, sys
 import open_live
 import testnet_replay as t
 
-# the demo accounts the operator redeems for, named in the environment
-HOLDERS = [os.environ[n] for n in ("AIMM_NYC_TRADER", "AIMM_NYC_ARBITRAGEUR", "AIMM_LONDON_TRADER", "AIMM_LONDON_ARBITRAGEUR") if os.environ.get(n)]
+# the demo accounts the operator redeems for, named in the environment as for testnet_replay.py; holders outside the demo
+# redeem their own tokens on the web app
+HOLDERS = [os.environ[n] for n in (f"AIMM_{c}_{r}" for c in ("NYC", "LONDON") for r in t.ROLES) if os.environ.get(n)]
 
 
 def polymarket_winner(name, q):
