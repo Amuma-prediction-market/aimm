@@ -1,4 +1,4 @@
-# AIMM on NEAR: specification
+# Specification
 
 What the contract does, exactly. Why AIMM is the better market is in `whitepaper/aimm.pdf`. The Rust core must match a Python reference model of the
 curve, pot and payout trade by trade, on vectors kept in `core/tests/vectors/`.
