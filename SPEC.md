@@ -1,8 +1,6 @@
 # Specification
 
-What the contract does, exactly. Why AIMM is the better market is in `whitepaper/aimm.pdf`. The vectors in
-`core/tests/vectors/` were produced by a Python reference model of the curve, pot and payout, which is not in this
-repository; they are kept as fixed data, and the Rust core must match them trade by trade.
+What the contract does, exactly. Why AIMM is the better market is in `whitepaper/aimm.pdf`.
 
 ## 1. The curve
 
