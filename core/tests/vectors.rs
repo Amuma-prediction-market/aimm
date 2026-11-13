@@ -1,6 +1,7 @@
-//! The core must match the reference model (a Python model of the curve, pot and payout) trade by trade on its vectors:
-//! every buy's cost and every sale's capped refund, every fee, every price after, and at the end the pot, the fee
-//! revenue, the winning tokens and the payout on every answer, to one part in 1e9 or 1e9 wei.
+//! The vectors in `vectors/` were produced by a Python reference model of the curve, pot and payout, which is not in
+//! this repository, and are kept as fixed data. The core must match them trade by trade: every buy's cost and every
+//! sale's capped refund, every fee, every price after, and at the end the pot, the fee revenue, the winning tokens and
+//! the payout on every answer, to one part in 1e9 or 1e9 wei.
 #[path = "vectors_data.rs"]
 #[allow(dead_code)]
 mod data;

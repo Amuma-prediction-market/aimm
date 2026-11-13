@@ -1,7 +1,8 @@
 # Specification
 
-What the contract does, exactly. Why AIMM is the better market is in `whitepaper/aimm.pdf`. The Rust core must match a Python reference model of the
-curve, pot and payout trade by trade, on vectors kept in `core/tests/vectors/`.
+What the contract does, exactly. Why AIMM is the better market is in `whitepaper/aimm.pdf`. The vectors in
+`core/tests/vectors/` were produced by a Python reference model of the curve, pot and payout, which is not in this
+repository; they are kept as fixed data, and the Rust core must match them trade by trade.
 
 ## 1. The curve
 
@@ -11,10 +12,10 @@ YES on i, and NO on every other answer. The curve is Hanson's with a fixed depth
     C(q) = b ln sum_i exp(q_i / b)
 
 It opens at q0_i = b ln p0_i, so C(q0) = 0 and the prices p_i = exp(q_i / b) / sum_k exp(q_k / b) are the opening
-prices. Buying n YES on i raises q_i by n; buying n NO on i raises every other q_j by n. Either costs the rise in C,
-plus one unit; selling refunds the fall in C, less one unit. A sale so small that rounding makes C rise is refused
-(`SaleTooSmall`). The virtual liquidity L = b ln(1 / min p0) is the most the curve can owe beyond what it takes in. No
-money backs it.
+prices. Buying n YES on i raises q_i by n; buying n NO on i raises every other q_j by n. Either costs
+max(floor(C after) − floor(C before), 0) + 1: the rise in C plus one unit, and never less than one unit. Selling
+refunds the fall in C, less one unit. A sale so small that rounding makes C rise is refused (`SaleTooSmall`). The
+virtual liquidity L = b ln(1 / min p0) is the most the curve can owe beyond what it takes in. No money backs it.
 
 ## 2. Pot, payout and the sell cap
 
@@ -30,11 +31,11 @@ money backs it.
   The cap holds per sale only: a holder with temporary capital can reach the curve refund across several trades, for
   example by buying another answer first and selling it back after. What holds is the floor: the pot stays at or above
   fund + C(q), so with exact C the payout on w is at least its opening price. Computed C can sit up to about 30 b / 1e18
-  units lower, the largest found (section 4), so with a fund smaller than that a dust purchase can leave a payout just
-  under the opening price. The cap cannot bind on a sale of YES on i when the fund is at least b ln(1 / p0_i), and cannot
-  bind on any sale when the fund is at least L, so an operator who wants exits to be equal can size the fund at L. The
-  NO cap uses the least payout, so one account can lower it for every NO seller by buying up a thin answer; no higher
-  cap keeps guarantee 3, so clients should read `quote_sell` just before selling.
+  units lower, the largest found on random books, so with a fund smaller than that a dust purchase can leave a payout
+  just under the opening price. The cap cannot bind on a sale of YES on i when the fund is at least b ln(1 / p0_i),
+  and cannot bind on any sale when the fund is at least L, so an operator who wants exits to be equal can size the fund
+  at L. The NO cap uses the least payout, so one account can lower it for every NO seller by buying up a thin answer;
+  no higher cap keeps guarantee 3, so clients should read `quote_sell` just before selling.
 - **Dust.** At a short pot the result keeps ceil(r W) and each redemption pays a floor, so up to about one unit per
   redemption stays in the contract after the last winner. Nobody can claim it. Two rows redeemed apart can be paid one
   unit less than the same tokens in one row, and a stranger can redeem before a holder merges them.
@@ -62,11 +63,13 @@ rounded outward.
 
 They hold for exact arithmetic. Here ln and exp are computed in
 fixed point. Guarantees 1 and 3 do not depend on that: `core/tests/` checks them at 6, 18 and 24 decimals. Guarantee 2
-does. A cost is floor(C after) − floor(C before) + 1, so rounding C to a unit uses up the margin and leaves nothing for
-the error in ln and exp. A purchase can therefore have a positive expected value of up to about 26 b / 1e18 units, the
-largest found and not a proved bound, on books chosen for it: at depth 1e17 with four equal answers, 4 NO cost 2 and are
-worth 3. On random books at depths up to 1e15 no case appeared. Total cost stays at least C(end) − C(start) plus one unit
-for each purchase, so the gain comes once and does not compound. A fee of any size adds at least one unit to a purchase.
+does. A cost is max(floor(C after) − floor(C before), 0) + 1, so rounding C to a unit uses up the margin and leaves
+nothing for the error in ln and exp. A purchase can therefore have a positive expected value of up to about 26 b / 1e18
+units, the largest found and not a proved bound, on books chosen for it: at depth 1e17 with four equal answers, 4 NO
+cost 2 and are worth 3. On random books at depths up to 1e15 no case appeared. Total cost stays at least
+C(end) − C(start) plus one unit for each purchase, so the gain comes once and does not compound. When computed C falls
+on a purchase, selling those same tokens straight back is refused as `SaleTooSmall` until the book moves. A fee of any
+size adds at least one unit to a purchase.
 
 ## 5. Units and limits
 

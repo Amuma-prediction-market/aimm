@@ -4,8 +4,8 @@
 //! q_i counts the tokens that pay if answer i happens: YES on i and NO on every other answer. The curve opens at
 //! q0_i = b ln p0_i, so C(q0) = 0 and the prices exp(q_i / b) / sum_k exp(q_k / b) are the opening prices. Nobody
 //! holds the opening tokens: the winning tokens on i are q_i - q0_i. The cost depends only on q, so a trade and its
-//! reverse return the same amount. The cost of a move is floor(C after) - floor(C before) + 1 and a refund the same
-//! difference less 1, so rounding C to a unit uses up the margin and the error in ln and exp is left over (SPEC.md,
+//! reverse return the same amount. The cost of a move is max(floor(C after) - floor(C before), 0) + 1 and a refund the
+//! fall in C less 1, so rounding C to a unit uses up the margin and the error in ln and exp is left over (SPEC.md,
 //! section 4). Tokens and money are in the collateral's smallest unit, prices in WAD.
 
 use crate::math::{exp_wad, ln_wad, mul_div, s_div_wad, s_mul_wad, EXP_FLOOR, IWAD, WAD};
@@ -80,7 +80,7 @@ impl Pool {
         self.q.iter().enumerate().map(|(j, &x)| if (j == i) == yes { x + n } else { x }).collect()
     }
 
-    /// The rise in C from buying `tickets`, plus one unit.
+    /// The rise in C from buying `tickets`, plus one unit; one unit if computed C does not rise.
     pub fn buy_cost(&self, i: usize, yes: bool, tickets: u128) -> u128 {
         let d = self.cost_at(&self.book_after(i, yes, tickets as i128)) - self.cost_at(&self.q);
         d.max(0) as u128 + 1

@@ -1,4 +1,4 @@
-//! The reference vectors carried past where `vectors.rs` stops (): each holder tracked by name, every sale checked
+//! The reference vectors carried past where `vectors.rs` stops: each holder tracked by name, every sale checked
 //! against what that holder has, and then the result on every answer and every redemption. Then the same trades with a
 //! full fund, which no vector has, and a vector at 6 decimals held to a few units rather than to 1e9.
 #[path = "vectors_data.rs"]
@@ -106,9 +106,10 @@ struct Row {
     after: [u128; 5],
 }
 
-/// The README market at 6 decimals from the reference model, by `gen_six_decimals.py`: prices .38 .22 .18 .19 .03, depth
-/// 7,130 dollars, fund 5,000, fee .5%. It keeps exact money where the core rounds, so an amount can differ by up to two
-/// units. The prices differ by about one part in the depth, since the opening book here is in whole units.
+/// The example market of `scripts/testnet.sh`, at 100 times its size and with a fee of .5% in place of its 2%, at 6
+/// decimals from the reference model, by `gen_six_decimals.py`: prices .38 .22 .18 .19 .03, depth 7,130 dollars, fund
+/// 5,000. It keeps exact money where the core rounds, so an amount can differ by up to two units. The prices differ by
+/// about one part in the depth, since the opening book here is in whole units.
 const PRICES: [u128; 5] = [38 * WAD / 100, 22 * WAD / 100, 18 * WAD / 100, 19 * WAD / 100, 3 * WAD / 100];
 const SIX_DECIMALS: &[Row] = &[
     Row { sell: false, who: 1, range: 4, yes: true, tickets: 3469151734, amount: 132807795, fee: 664039, after: [372987397990191552, 215940072520637216, 176678241153248608, 186493698995095808, 47900589340826912] },

@@ -1,8 +1,9 @@
 //! Fixed-point arithmetic in WAD (1e18), with no floating point and no dependencies.
 //!
 //! `mul_div` takes a 256-bit intermediate, so `a * b / d` never overflows when the result fits in 128 bits.
-//! `ln_wad` and `exp_wad` are accurate to a few parts in 1e17, far inside the one part in 1e9 to which the
-//! contract must match the reference model.
+//! `ln_wad` and `exp_wad` are accurate to a few parts in 1e17, far inside the one part in 1e9 to which the core must
+//! match the vectors in `tests/vectors/`. A Python reference model, which is not in this repository, produced them, and
+//! they are kept as fixed data.
 
 pub const WAD: u128 = 1_000_000_000_000_000_000;
 pub const IWAD: i128 = WAD as i128;

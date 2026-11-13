@@ -1713,7 +1713,7 @@ fn min_proceeds_one_above_the_proceeds_is_refused() {
 
 #[test]
 fn a_message_naming_a_receiver_is_refused() {
-    let (mut c, id) = setup();
+    let (c, id) = setup();
     ctx("usdc.near", 0, T0 + 2);
     let msg = r#"{"action":"buy","question_id":1,"range":0,"yes":false,"tickets":"1000000","max_cost":"1000000","receiver_id":"bob.near"}"#;
     let (c, why) = refused(c, |c| {
@@ -3425,7 +3425,7 @@ fn the_storage_of_a_halted_question_with_no_result_stays() {
 #[test]
 fn a_purchase_names_no_receiver_under_any_name() {
     for name in ["receiver", "receiver_id", "to", "account_id", "recipient", "beneficiary", "buyer", "owner_id", "for"] {
-        let (mut c, id) = setup();
+        let (c, id) = setup();
         ctx("usdc.near", 0, T0 + 2);
         let msg = format!(r#"{{"action":"buy","question_id":1,"range":0,"yes":false,"tickets":"1000000","max_cost":"1000000","{name}":"bob.near"}}"#);
         let (c, why) = refused(c, |c| {

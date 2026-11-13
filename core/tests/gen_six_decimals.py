@@ -1,7 +1,10 @@
-"""A short vector at 6 decimals from the reference model (lmsr_pool.py), which the vectors of
+"""A short vector at 6 decimals from the Python reference model (lmsr_pool.py), which the vectors of
 tests/vectors/ cannot give: those are all at 18 decimals and their tolerance hides anything below 1e9 units. This is the
-README market, in the smallest unit of a 6-decimal stablecoin, crowded enough on answer 4 that sales get capped. Prints
-the rows of SIX_DECIMALS in replay.rs.  python3 tests/gen_six_decimals.py path/to/sims"""
+example market of scripts/testnet.sh, at 100 times its size and with a fee of .5% in place of its 2%, in the smallest
+unit of a 6-decimal stablecoin, crowded enough on answer 4 that sales get capped. Prints the rows of SIX_DECIMALS in
+replay.rs. The reference model is not in this repository, so the script runs only with that model, given as the folder
+that holds lmsr_pool.py; its output is kept in replay.rs as fixed data.
+python3 tests/gen_six_decimals.py <folder holding lmsr_pool.py>"""
 import random, sys
 sys.path.insert(0, sys.argv[1])
 from lmsr_pool import LMSRPool

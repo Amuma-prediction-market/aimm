@@ -7,21 +7,23 @@
 #
 # AIMM must be an account you control (a sub-account works), OPERATOR and TRADER must hold the NEP-141 token FT,
 # RESOLVER must be someone other than OPERATOR, and every key must be in your keychain. Run it from the repository's
-# root. The question closes 10 minutes after it is created.
+# root. The question closes 10 minutes after it is created. RPC is the testnet RPC the protocol check asks, by default
+# https://rpc.testnet.fastnear.com.
 set -euo pipefail
 : "${AIMM:?set AIMM}" "${OPERATOR:?set OPERATOR}" "${TRADER:?set TRADER}" "${RESOLVER:?set RESOLVER}"
 [ "$RESOLVER" != "$OPERATOR" ] || { echo "the resolver must not be the operator: it could send the pot to itself" >&2; exit 1; }
 FT=${FT:-usdc.fakes.testnet}
+RPC=${RPC:-https://rpc.testnet.fastnear.com}
 NET="network-config testnet"
 WASM=target/wasm32-unknown-unknown/release/aimm_contract.wasm
 
 # near-sdk 5.30 imports host functions that need protocol 88
-PROTOCOL=$(curl -s -X POST https://rpc.testnet.near.org -H 'content-type: application/json' \
+PROTOCOL=$(curl -s -X POST "$RPC" -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":"x","method":"status","params":[]}' | grep -Eo '"protocol_version": *[0-9]+' | grep -Eo '[0-9]+' || true)
 [ "${PROTOCOL:-0}" -ge 88 ] || { echo "testnet protocol is ${PROTOCOL:-unknown}; this wasm needs 88 or later" >&2; exit 1; }
 
-# the remap keeps your home folder out of the panic messages in the wasm, so this hash differs from the wasm the local
-# tests build without it
+# RUSTFLAGS replaces the rustflags of .cargo/config.toml, so it repeats --cfg near; the remap keeps your home folder out
+# of the panic messages in the wasm, so this hash differs from a build without the remap
 RUSTFLAGS="--cfg near --remap-path-prefix=$HOME=~" cargo build -p aimm-contract --target wasm32-unknown-unknown --release
 near contract deploy "$AIMM" use-file "$WASM" with-init-call new json-args '{}' prepaid-gas '100 Tgas' attached-deposit '0 NEAR' $NET sign-with-keychain send
 

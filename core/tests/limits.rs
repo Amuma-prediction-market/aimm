@@ -637,7 +637,8 @@ fn a_spread_far_past_41_depths_is_only_a_price_of_zero() {
     q.sell(0, true, MAX_TICKETS, 0).unwrap();
     assert_eq!(q.pool.as_ref().unwrap().q, q.pool.as_ref().unwrap().q0);
 
-    // the README market at 6 decimals: the book level again, with 2^100 YES on answer 0 in one holder's hands
+    // the example market of scripts/testnet.sh, at 100 times its size and with no fee, at 6 decimals: the book level
+    // again, with 2^100 YES on answer 0 in one holder's hands
     let mut q = Question::new(5, 0, CLOSE, RESOLVE, FALLBACK, 0).unwrap();
     q.open(7_130 * TOKEN, 5_000 * TOKEN, &[38 * WAD / 100, 22 * WAD / 100, 18 * WAD / 100, 19 * WAD / 100, 3 * WAD / 100], 0).unwrap();
     for _ in 0..2 {

@@ -5,14 +5,22 @@ Parimutuel pools fail to provide reliable information and force informed traders
 AMM and orderbooks can provide accurate signals but require heavy capital - more so for illiquid specialty markets.
 This is the fundamental trade off between capital requirement and prediction accuracy: AMM/orderbook and parimutuel are at two ends of the spectrum.
 Existing prediction markets are not optimal for specialty longtail markets such as wind speeds around a wind farm. Such information often triggers millions in profits or losses for utilities but no existing prediction market can accurately and efficiently serve it.
-We propose a new mechanism: Automated Information Market Maker (AIMM). Which does not seek for a point estimation but to form a prediction range which contains true probabilities. The range length represents the accuracy of predictions.
+We propose a new mechanism: Automated Information Market Maker (AIMM). Which does not seek for a point estimation but to form a prediction range around the price: a trader whose belief lies outside it expects to gain by trading (whitepaper, Proposition 3), so its length measures how far the price can be trusted.
 
-Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf).
+Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md).
+
+## Live
+
+The contract runs on NEAR testnet as
+[`market.aimm-weather.testnet`](https://testnet.nearblocks.io/address/market.aimm-weather.testnet). The site is
+[amuma-cv4.pages.dev](https://amuma-cv4.pages.dev), and its code is in
+[Amuma-prediction-market/app](https://github.com/Amuma-prediction-market/app).
 
 ## Repository layout
 
 | Component | Description |
 |---|---|
+| `SPEC.md` | The exact rules of the engine and the contract |
 | `core/` | The AIMM engine in fixed-point Rust: curve, pot, payout and prediction range |
 | `core/tests/` | Reference-model, property and limit tests |
 | `contract/` | The NEAR smart contract, serving every question from one account |
@@ -27,8 +35,12 @@ cargo test
 ```
 
 ```bash
-cargo build -p aimm-contract --target wasm32-unknown-unknown --release
+RUSTFLAGS="--cfg near --remap-path-prefix=$HOME=~" cargo build -p aimm-contract --target wasm32-unknown-unknown --release
 ```
+
+RUSTFLAGS from the environment replaces the rustflags of `.cargo/config.toml`, so the command repeats its `--cfg near`.
+The remap keeps the builder's home folder out of the panic messages in the wasm. `scripts/testnet.sh` builds the same
+way.
 
 ## Built with
 
@@ -40,11 +52,13 @@ cargo build -p aimm-contract --target wasm32-unknown-unknown --release
 
 ## Hackathon
 
-Everything in this repository was built for the NEAR Hackathon, inside its window of 19 October to 14 November 2026:
-the first commit is from 3 November.
+This repository is our entry to the NEAR Hackathon, whose window is 19 October to 14 November 2026. AIMM, its
+whitepaper and a Python reference model were developed before the hackathon in a private prototype; the test vectors
+in `core/tests/vectors` come from that model. The Rust engine, the NEAR contract, the deploy script and the site were
+written during the hackathon, from 3 November 2026.
 
 ## Licence
 
 Business Source License 1.1; see [`LICENSE`](LICENSE). Anyone may read, copy, modify and test the code, but production
-use needs a commercial licence from the Amuma Team. On 14 November 2030 the code becomes available under the GNU General
-Public License v2.0 or later.
+use needs a commercial licence from the Amuma Team. By 14 November 2030 at the latest the code becomes available under
+the GNU General Public License v2.0 or later.
