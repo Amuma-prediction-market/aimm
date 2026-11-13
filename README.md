@@ -9,7 +9,7 @@ This is the fundamental trade off between capital requirement and prediction acc
 Existing prediction markets are not optimal for specialty longtail markets such as wind speeds around a wind farm. Such information often triggers millions in profits or losses for utilities but no existing prediction market can accurately and efficiently serve it.
 We propose a new mechanism: Automated Information Market Maker (AIMM). Which does not seek for a point estimation but to form a prediction range around the price: a trader whose belief lies outside it expects to gain by trading (whitepaper, Proposition 3), so its length measures how far the price can be trusted.
 
-Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf). Exact rules: [`SPEC.md`](SPEC.md).
+Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf).
 
 ## Live
 
