@@ -1,13 +1,17 @@
-# AIMM: Automated Information Market Maker
+# AMUMA - A New Prediction Market Mechanism: Automated Information Market Maker (AIMM)
 
 **Live demo: [amuma-cv4.pages.dev](https://amuma-cv4.pages.dev)**
 
-Information is not free. Capital is required to get good information in prediction markets. Operators have to choose between the two evils of low pricing accuracy vs capital inefficiency.
-Parimutuel pools fail to provide reliable information and force informed traders to wait until the last moments to place their bet to avoid revealing information.
-AMM and orderbooks can provide accurate signals but require heavy capital - more so for illiquid specialty markets.
-This is the fundamental trade off between capital requirement and prediction accuracy: AMM/orderbook and parimutuel are at two ends of the spectrum.
-Existing prediction markets are not optimal for specialty longtail markets such as wind speeds around a wind farm. Such information often triggers millions in profits or losses for utilities but no existing prediction market can accurately and efficiently serve it.
-We propose a new mechanism: Automated Information Market Maker (AIMM). Which does not seek for a point estimation but to form a prediction range around the price: a trader whose belief lies outside it expects to gain by trading (whitepaper, Proposition 3), so its length measures how far the price can be trusted.
+Current prediction market architectures - AMMs, orderbooks, and parimutuel pools - force a strict trade-off between capital efficiency and pricing accuracy:
+
+* Orderbooks and AMMs deliver precise point-estimate signals (singleton range) but demand deep liquidity, making them prohibitively expensive for illiquid, niche markets.
+* Parimutuel pools minimize capital requirements but offer virtually no informational accuracy (uninformative range of [0,1]), as informed traders withhold capital until the final moments to avoid leaking alpha.
+
+This structural dilemma leaves long-tail, specialized markets underserved. High-stakes niche information - such as micro-climate wind forecasts that shift millions in utility profits - remains unviable on existing platforms.
+
+AIMM resolves this tension by replacing rigid point estimates with dynamic probability range. Market operators tune capital efficiency against signal resolution: wider ranges require less liquidity, while tighter ranges yield higher precision.
+
+By slashing the capital threshold needed to bootstrap specialty markets, AIMM unlocks a vast array of niche real-world prediction markets for signal discovery, enterprise hedging, consumer decisions, and autonomous agents.
 
 Whitepaper: [`whitepaper/aimm.pdf`](whitepaper/aimm.pdf).
 
