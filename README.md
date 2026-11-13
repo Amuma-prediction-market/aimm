@@ -1,5 +1,7 @@
 # AIMM: Automated Information Market Maker
 
+**Live demo: [amuma-cv4.pages.dev](https://amuma-cv4.pages.dev)**
+
 Information is not free. Capital is required to get good information in prediction markets. Operators have to choose between the two evils of low pricing accuracy vs capital inefficiency.
 Parimutuel pools fail to provide reliable information and force informed traders to wait until the last moments to place their bet to avoid revealing information.
 AMM and orderbooks can provide accurate signals but require heavy capital - more so for illiquid specialty markets.
