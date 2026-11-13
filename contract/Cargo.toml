@@ -3,6 +3,7 @@ name = "aimm-contract"
 version = "0.1.0"
 edition = "2021"
 publish = false
+license = "BUSL-1.1"
 description = "AIMM on NEAR: questions with several answers, priced by the Automated Information Market Maker"
 
 [lib]

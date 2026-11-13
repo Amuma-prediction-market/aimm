@@ -45,4 +45,6 @@ the first commit is from 3 November.
 
 ## Licence
 
-No licence is granted. All rights reserved.
+Business Source License 1.1; see [`LICENSE`](LICENSE). Anyone may read, copy, modify and test the code, but production
+use needs a commercial licence from the Amuma Team. On 14 November 2030 the code becomes available under the GNU General
+Public License v2.0 or later.

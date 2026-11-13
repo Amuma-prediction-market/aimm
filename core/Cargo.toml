@@ -3,6 +3,7 @@ name = "aimm-core"
 version = "0.1.0"
 edition = "2021"
 publish = false
+license = "BUSL-1.1"
 description = "AIMM, the Automated Information Market Maker: curve, pot, payout and sell cap in fixed-point Rust"
 
 [features]
