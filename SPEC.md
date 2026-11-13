@@ -30,8 +30,8 @@ virtual liquidity L = b ln(1 / min p0) is the most the curve can owe beyond what
   payout on any answer the sold token pays on. It can lower the payout on other answers, because the pot is shared.
   The cap holds per sale only: a holder with temporary capital can reach the curve refund across several trades, for
   example by buying another answer first and selling it back after. What holds is the floor: the pot stays at or above
-  fund + C(q), so with exact C the payout on w is at least its opening price. Computed C can sit up to about 30 b / 1e18
-  units lower, the largest found on random books, so with a fund smaller than that a dust purchase can leave a payout
+  fund + C(q), so with exact C the payout on w is at least its opening price. Computed C can sit a few tens of b / 1e18
+  units lower (the tests allow up to 32 b / 1e18; not a proved bound), so with a fund smaller than that a dust purchase can leave a payout
   just under the opening price. The cap cannot bind on a sale of YES on i when the fund is at least b ln(1 / p0_i),
   and cannot bind on any sale when the fund is at least L, so an operator who wants exits to be equal can size the fund
   at L. The NO cap uses the least payout, so one account can lower it for every NO seller by buying up a thin answer;
@@ -68,7 +68,7 @@ nothing for the error in ln and exp. A purchase can therefore have a positive ex
 units, the largest found and not a proved bound, on books chosen for it: at depth 1e17 with four equal answers, 4 NO
 cost 2 and are worth 3. On random books at depths up to 1e15 no case appeared. Total cost stays at least
 C(end) − C(start) plus one unit for each purchase, so the gain comes once and does not compound. When computed C falls
-on a purchase, selling those same tokens straight back is refused as `SaleTooSmall` until the book moves. A fee of any
+on a purchase, selling those same tokens straight back is refused as `SaleTooSmall` while the book stays where the purchase left it. A fee of any
 size adds at least one unit to a purchase.
 
 ## 5. Units and limits

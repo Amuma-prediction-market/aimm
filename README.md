@@ -54,8 +54,8 @@ way.
 
 This repository is our entry to the NEAR Hackathon, whose window is 19 October to 14 November 2026. AIMM, its
 whitepaper and a Python reference model were developed before the hackathon in a private prototype; the test vectors
-in `core/tests/vectors` come from that model. The Rust engine, the NEAR contract, the deploy script and the site were
-written during the hackathon, from 3 November 2026.
+in `core/tests/vectors` and the six-decimal vector in `core/tests/replay.rs` come from that model. The Rust engine,
+the NEAR contract, the deploy script and the site were written during the hackathon, from 3 November 2026.
 
 ## Licence
 
